@@ -205,7 +205,6 @@ namespace GenericStackTask
                     throw new InvalidOperationException("Stack cannot be changed during iteration.");
                 }
 
-                // __stack._version++;
                 indexForEnumerator = __stack.Count;
             }
 
@@ -214,10 +213,6 @@ namespace GenericStackTask
             {
                 get
                 {
-                    // if (indexForEnumerator < 0)
-                    // {
-                    //     throw new InvalidOperationException("indexForEnumerator < 0");
-                    // }
                     return __stack._arr[indexForEnumerator];
                 }
             }
@@ -226,11 +221,6 @@ namespace GenericStackTask
             {
                 get
                 {
-                    // if (indexForEnumerator < 0)
-                    // {
-                    //     throw new InvalidOperationException("Stack cannot be changed during iteration.");
-                    // }
-
                     return __stack._arr[indexForEnumerator];
                 }
             }
