@@ -6,7 +6,7 @@ class Queue:
         if isinstance(Arr, type(None)):
             Arr = []
         self._items = Arr
-        self.index = len(Arr)
+        self.index = -1
 
     def peek(self):
         '''Peek at first element'''
@@ -18,6 +18,7 @@ class Queue:
 
     def enqueue(self, item):
         """Add an item to the queue"""
+        z
         self._items.insert(0, item)
 
     def dequeue(self):
@@ -38,11 +39,9 @@ class Queue:
         return self
 
     def __next__(self):
-        self.index -= 1
-        if self.index < 0:
-            self.index = len(self._items)
+        self.index += 1
+        if self.index >= len(self._items):
+            self.index = -1
             raise StopIteration
         else:
             return self._items[self.index]
-
-
