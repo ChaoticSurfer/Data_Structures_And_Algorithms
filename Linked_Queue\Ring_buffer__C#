@@ -50,8 +50,6 @@ class RingBuffer<T> : IEnumerable<T>
             public void Clear()
             {
                 Array.Clear(_arr, 0, count);
-                // როგორ ჩავწერო ეს ნაწილი მოკლედ? 
-                // lambda expression ს return ტიპი void ხომ არ შეიძლება ჰქონდეს?
             }
 
             private void RightShift1Less()
