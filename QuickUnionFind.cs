@@ -11,6 +11,7 @@ namespace AlgoTraining
             unionFind.Union(3, 4);
             unionFind.Union(1, 4);
             Console.WriteLine(unionFind.Connected(2, 3));
+            // near linear Connection check. 
         }
     }
 
