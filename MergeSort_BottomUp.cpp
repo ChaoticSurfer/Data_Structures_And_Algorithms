@@ -37,13 +37,12 @@ void mergeSort(int arr[], int l, int r) {
     for (int subSize = 1; subSize <= r; subSize <<= 1) {
         ll = l;
         rr = ll + subSize;
-        while (true) {
+        while (ll < r) {
             merge(arr, ll, ((rr + ll - 1) / 2), min(rr, r));
 
             ll = rr + 1;
             rr = ll + subSize;
 
-            if (ll >= r) break;
 
 
         }
