@@ -6,6 +6,8 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
+        // uniformly random shuffle algorithm
+        
             var arr = new[] {12, 11, 13, 5, 6, 7};
             printArray(arr);
             KnuthShuffle(arr);
