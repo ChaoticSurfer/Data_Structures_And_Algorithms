@@ -1,83 +1,103 @@
-// C# implementation of ShellSort
-
 using System;
 
-static class Program
+namespace ConsoleApp1
 {
-    // Driver method
-    public static void Main()
+    class Program
     {
-        int[] arr = {12, 34, 54, 2, 3};
-        printArray(arr);
-
-        Quick.Sort(arr, 0, arr.Length - 1);
-        printArray(arr);
-    }
-
-    public static void printArray(int[] arr)
-    {
-        int n = arr.Length;
-        for (int i = 0; i < n; ++i)
-            Console.Write(arr[i] + " ");
-        Console.WriteLine();
-    }
-}
-
-
-public static class Quick
-{
-    public static void Sort(int[] arr, int low, int high)
-    {
-        if (low >= high)
+        static void Main(string[] args)
         {
-            return;
+            var arr = new[] {12, 11, 13, 5, 6, 7};
+            printArray(arr);
+            Quick.Sort(arr);
+            printArray(arr);
         }
 
-        int k = Partition(arr, low, high);
-        Sort(arr, low, k - 1);
-        Sort(arr, k + 1, high);
-    }
-
-
-    public static int Partition<T>(T[] array, int lo, int hi) where T : IComparable
-    {
-        int k = lo;
-        int i, j;
-        i = lo;
-        j = hi + 1;
-
-        while (true)
+        public static void printArray(int[] arr)
         {
-            while (less(array[++i], array[k]))
-                if (i == hi)
-                    break;
-
-            while (less(array[k], array[--j]))
-                if (j == lo)
-                    break;
-
-            if (i > j)
+            foreach (var i in arr)
             {
-                break;
+                Console.Write($"{i} ");
             }
 
-            Swap(array, lo, hi);
+            Console.WriteLine();
+        }
+    }
+
+    public static class Quick
+    {
+        public static void Sort<T>(T[] array) where T : IComparable
+        {
+            KnuthShuffle(array);
+
+            Quick.Sort(array, 0, array.Length - 1);
         }
 
-        Swap(array, lo, k);
-        return lo;
-    }
+        public static void Sort<T>(T[] array, int lo, int hi) where T : IComparable
+        {
+            if (hi <= lo) return;
+            int j = Partition(array, lo, hi);
+            Sort(array, lo, j - 1);
+            Sort(array, j + 1, hi);
+        }
 
-    public static void Swap<T>(T[] arr, int i, int j)
-    {
-        T temp;
-        temp = arr[j];
-        arr[j] = arr[i];
-        arr[i] = temp;
-    }
+        // UTILITY FUNCTIONS
 
-    public static bool less<T>(T comparable1, T comparable2) where T : IComparable
-    {
-        return comparable1.CompareTo(comparable2) == -1;
+        public static int Partition<T>(T[] array, int lo, int hi) where T : IComparable
+        {
+            int i = lo;
+
+            int j = hi + 1;
+            var v = array[lo];
+            while (true)
+            {
+                while (less(array[++i], v))
+                    if (i == hi)
+                        break;
+
+
+                while (less(v, array[--j]))
+                    if (j == lo)
+                        break;
+
+                if (i >= j)
+                    break;
+
+                swap(array, i, j);
+            }
+
+            swap(array, j, lo);
+
+            // now, a[lo .. j-1] <= a[j] <= a[j+1 .. hi]
+            return j;
+        }
+
+
+        private static bool less(IComparable i, IComparable j)
+        {
+            return i.CompareTo(j) == -1;
+        }
+
+        private static T[] KnuthShuffle<T>(T[] array)
+        {
+            var random = new Random();
+            var n = array.Length;
+            for (int i = 0; i < n; i++)
+            {
+                var randomNumber = random.Next(0, n);
+                swap(array, i, randomNumber);
+            }
+
+            return array;
+        }
+
+        private static void swap<T>(T[] array, int i, int j)
+        {
+            if (i == j) return;
+
+            T temp;
+            temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
     }
 }
