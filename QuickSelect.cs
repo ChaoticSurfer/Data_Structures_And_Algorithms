@@ -7,7 +7,7 @@ namespace Algorithms
         static void Main(string[] args)
         {
         // Select N th smallest element from the array.
-            // Theta(N) , O(N^2). consumes constant additional memory.
+            // Theta(N) , O(N^2) but there is probabilistic guarantee that it will not happen. consumes constant additional memory.
             var arr = new[] {12, 11, 13, 5, 6, 7, 77, 77, 3, 5, 3, 2, 2, 111, 6666, 3, 54};
             printArray(arr);
             Console.WriteLine(Quick.SelectNth(arr, 2));
