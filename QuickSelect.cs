@@ -7,6 +7,7 @@ namespace Algorithms
         static void Main(string[] args)
         {
         // Select N th smallest element from the array.
+            // Linear or near linear time complexity
             var arr = new[] {12, 11, 13, 5, 6, 7, 77, 77, 3, 5, 3, 2, 2, 111, 6666, 3, 54};
             printArray(arr);
             Console.WriteLine(Quick.SelectNth(arr, 2));
