@@ -7,23 +7,10 @@ namespace Algorithms
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(Heap.GetParentIndex());
-            var arr = new[] {12, 11, 13, 5, 6, 7, 77,9};
+            var arr = new[] {12, 11, 13, 5, 6, 7, 77, 9};
             Heap.Sort(arr);
             PrintArray(arr);
         }
-
-        // 0_   1           2^1 -1 
-        // , 2  .  3,
-        // 4, 5 . 6,  7
-        //
-        //
-        //      0       2^2-2
-        // , 1  .  2,
-        // 3, 4 . 5, 6          2^3-2
-        //
-        // n-1
-        //
 
 
         public static void PrintArray<T>(T[] array)
@@ -42,13 +29,14 @@ namespace Algorithms
             // max heap
             public static void Sort<T>(T[] array) where T : IComparable
             {
-                
                 // build heap starting from 0
                 int n = array.Length;
-                for (int i = GetParentIndex(n - 1); i <= 0; i -= 1)
+                for (int i = GetParentIndex(n - 1); i >= 0; i -= 1)
                 {
                     Sink(array, i, n);
                 }
+
+
 
                 // sort
                 while (n > 1)
