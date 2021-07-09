@@ -1,0 +1,79 @@
+#nullable enable
+
+using System;
+using System.Linq;
+
+namespace Algorithms
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var bst = new BST<int, int>(1, 2);
+            Console.WriteLine(bst.Get(2));
+        }
+
+        public class BST<Key, Value>
+            where Key : IComparable<Key>
+        {
+            Node root;
+
+            public BST(Node root)
+            {
+                this.root = root;
+            }
+
+            public BST(Key key, Value value)
+            {
+                root = new Node(key, value);
+            }
+
+            public Object Get(Key key)
+            {
+                return Get(root, key);
+            }
+
+            public Object Get(Node node, Key key)
+            {
+                if (root == null) throw new Exception("Root is null");
+
+                int cmp = key.CompareTo(node.key);
+                if (cmp > 0) return Get(node.RightChild, key);
+                if (cmp < 0) return Get(node.LeftChild, key);
+                if (cmp == 0) return node.value;
+                return null ;
+                return default;
+                
+            }
+
+            public void Put(Node node)
+            {
+                Put(this, node);
+            }
+
+            public void Put(Node node, Key key, Value value)
+            {
+                if (node == null) node = new Node(key, value);
+
+                int cmp = key.CompareTo(node.key);
+                if (cmp > 1) Put(node.RightChild);
+                else if (cmp < 1) Put(node.LeftChild);
+                else node.value = value;
+            }
+
+            public class Node
+            {
+                public Object key;
+                public Value value;
+
+                public Node(object key, Value value)
+                {
+                    this.key = key;
+                    this.value = value;
+                }
+
+                public Node LeftChild, RightChild;
+            }
+        }
+    }
+}
