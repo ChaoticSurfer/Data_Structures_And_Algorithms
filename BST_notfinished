@@ -1,6 +1,8 @@
 #nullable enable
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 
 namespace Algorithms
@@ -10,14 +12,24 @@ namespace Algorithms
         static void Main()
         {
             var bst = new BST("bb", "bbbb");
+            bst.Put("dd", "dddd");
             bst.Put("aa", "aaaa");
             bst.Put("cc", "cccc");
+            bst.Put("gg", "gggg");
 
-            //
-            Console.WriteLine(bst.DeleteMin().value);
-            Console.WriteLine(bst.DeleteMin().value);
+            foreach (var node in bst.InorderTraversal())
+            {
+                Console.WriteLine($"{node.key} {node.value} {node.size}");
+            }         
+            
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+            foreach (var node in bst.BreadthFirstTraversal())
+            {
+                Console.WriteLine($"{node.key} {node.value} {node.size}");
+            }
         }
-
 
         public class BST
         {
@@ -35,6 +47,31 @@ namespace Algorithms
             public BST(string key, string value)
             {
                 root = new Node(key, value);
+            }
+
+
+            public string min()
+            {
+                // if (isEmpty()) throw new NoSuchElementException("calls min() with empty symbol table");
+                return min(root).key;
+            }
+
+            private Node min(Node x)
+            {
+                if (x.LeftChild == null) return x;
+                return min(x.LeftChild);
+            }
+
+            public string max()
+            {
+                // if (isEmpty()) throw new NoSuchElementException("calls max() with empty symbol table");
+                return max(root).key;
+            }
+
+            private Node max(Node x)
+            {
+                if (x.RightChild == null) return x;
+                return max(x.RightChild);
             }
 
             public string? Get(string key)
@@ -57,7 +94,10 @@ namespace Algorithms
             public void Put(string key, string value)
             {
                 if (key == null) throw new ArgumentNullException(nameof(key), "");
-                root = Put(root, new Node(key, value));
+                if (value == null)
+                    Delete(key);
+                else
+                    root = Put(root, new Node(key, value));
             }
 
 
@@ -77,9 +117,9 @@ namespace Algorithms
                 return currentRoot;
             }
 
-            public Node DeleteMin()
+            public void DeleteMin()
             {
-                return DeleteMin(root);
+                root = DeleteMin(root);
             }
 
             private Node DeleteMin(Node x)
@@ -102,29 +142,65 @@ namespace Algorithms
             public Node Delete(Node x, string key)
             {
                 int cmp = key.CompareTo(x.key);
-                if (cmp > 0) return Delete(x.RightChild, key);
-                if (cmp < 0) return Delete(x.LeftChild, key);
-
-                if (x.LeftChild == null)
+                if (cmp > 0) x.RightChild = Delete(x.RightChild, key);
+                if (cmp < 0) x.LeftChild = Delete(x.LeftChild, key);
+                else
                 {
-                    return x.RightChild;
-                }
-                if (x.RightChild == null)
-                {
-                    return x.LeftChild;
+                    if (x.LeftChild == null) return x.RightChild;
+                    if (x.RightChild == null) return x.LeftChild;
+
+                    Node t = x;
+                    x = min(t.RightChild);
+                    t.RightChild = DeleteMin(t.RightChild);
+                    x.LeftChild = t.LeftChild;
                 }
 
-                Node leftSubtree = x.LeftChild;
-                Node newX =  DeleteMin(x.RightChild);
-                newX.LeftChild = leftSubtree;
-                return newX;
-
+                // size
+                x.size =
+                    (x.LeftChild == null ? 0 : Size(x.LeftChild))
+                    + (x.RightChild == null ? 0 : Size(x.RightChild))
+                    + 1;
+                return x;
             }
 
 
             public static int Size(Node node)
             {
                 return node.size;
+            }
+
+
+            public Queue<Node> InorderTraversal()
+            {
+                var queue = new Queue<Node>();
+                InorderTraversal(root, queue);
+                return queue;
+            }
+
+            private void InorderTraversal(Node x, Queue<Node> queue)
+            {
+                if (x == null)
+                    return;
+
+                InorderTraversal(x.LeftChild, queue);
+                queue.Enqueue(x);
+                InorderTraversal(x.RightChild, queue);
+            }
+
+            public Queue<Node> BreadthFirstTraversal()
+            {
+                var queue = new Queue<Node>();
+                BreadthFirstTraversal(root, queue);
+                return queue;
+            }
+            
+            private void BreadthFirstTraversal(Node x, Queue<Node> queue)
+            {
+                if (x == null)
+                    return;
+                queue.Enqueue(x);
+                InorderTraversal(x.LeftChild, queue);
+                InorderTraversal(x.RightChild, queue);
             }
 
             public class Node
