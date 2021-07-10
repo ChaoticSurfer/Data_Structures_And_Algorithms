@@ -1,78 +1,108 @@
 #nullable enable
 
 using System;
-using System.Linq;
+
 
 namespace Algorithms
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            var bst = new BST<int, int>(1, 2);
-            Console.WriteLine(bst.Get(2));
+            var bst = new BST("as", "ds");
+            bst.Put("a", "aa");
+            bst.Put("b", "bb");
+
+            Console.WriteLine(bst.Get("a"));
+            Console.WriteLine(bst.Get("b"));
+            Console.WriteLine(bst.DeleteMin() == null);
         }
 
-        public class BST<Key, Value>
-            where Key : IComparable<Key>
+
+        public class BST
         {
             Node root;
+
+            public BST()
+            {
+            }
 
             public BST(Node root)
             {
                 this.root = root;
             }
 
-            public BST(Key key, Value value)
+            public BST(string key, string value)
             {
                 root = new Node(key, value);
             }
 
-            public Object Get(Key key)
+            public string? Get(string key)
             {
+                if (key == null) throw new ArgumentNullException(nameof(key), "");
                 return Get(root, key);
             }
 
-            public Object Get(Node node, Key key)
+            public string? Get(Node? currentRoot, string key)
             {
-                if (root == null) throw new Exception("Root is null");
+                if (currentRoot == null) return null;
 
-                int cmp = key.CompareTo(node.key);
-                if (cmp > 0) return Get(node.RightChild, key);
-                if (cmp < 0) return Get(node.LeftChild, key);
-                if (cmp == 0) return node.value;
-                return null ;
-                return default;
-                
+                int cmp = key.CompareTo(currentRoot.key);
+                if (cmp > 0) return Get(currentRoot.RightChild, key);
+                if (cmp < 0) return Get(currentRoot.LeftChild, key);
+                if (cmp == 0) return currentRoot.value;
+                return null;
             }
 
-            public void Put(Node node)
+            public void Put(string key, string value)
             {
-                Put(this, node);
+                if (key == null) throw new ArgumentNullException(nameof(key), "");
+                root = Put(root, new Node(key, value));
             }
 
-            public void Put(Node node, Key key, Value value)
-            {
-                if (node == null) node = new Node(key, value);
 
-                int cmp = key.CompareTo(node.key);
-                if (cmp > 1) Put(node.RightChild);
-                else if (cmp < 1) Put(node.LeftChild);
-                else node.value = value;
+            public Node Put(Node? currentRoot, Node nodeToAdd)
+            {
+                if (currentRoot == null) currentRoot = nodeToAdd;
+                int cmp = nodeToAdd.key.CompareTo(currentRoot.key);
+                if (cmp > 0) currentRoot.RightChild = Put(currentRoot.RightChild, nodeToAdd);
+                else if (cmp < 0) currentRoot.LeftChild = Put(currentRoot.LeftChild, nodeToAdd);
+                else currentRoot.value = nodeToAdd.value;
+                return currentRoot;
             }
 
-            public class Node
+            public Node DeleteMin()
             {
-                public Object key;
-                public Value value;
+                return DeleteMin(root);
+            }
 
-                public Node(object key, Value value)
+            public Node? DeleteMin(Node CurrentRoot)
+            {
+                while (true)
+                {
+                    if (CurrentRoot != null)
+                    {
+                        CurrentRoot.LeftChild = DeleteMin(CurrentRoot.LeftChild);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+
+        public class Node
+            {
+                public string key;
+                public string value;
+
+                public Node(string key, string value)
                 {
                     this.key = key;
                     this.value = value;
                 }
 
-                public Node LeftChild, RightChild;
+                public Node? LeftChild, RightChild;
             }
         }
     }
