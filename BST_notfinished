@@ -9,13 +9,13 @@ namespace Algorithms
     {
         static void Main()
         {
-            var bst = new BST("as", "ds");
-            bst.Put("a", "aa");
-            bst.Put("b", "bb");
+            var bst = new BST("bb", "bbbb");
+            bst.Put("aa", "aaaa");
+            bst.Put("cc", "cccc");
 
-            Console.WriteLine(bst.Get("a"));
-            Console.WriteLine(bst.Get("b"));
-            Console.WriteLine(bst.DeleteMin() == null);
+            //
+            Console.WriteLine(bst.DeleteMin().value);
+            Console.WriteLine(bst.DeleteMin().value);
         }
 
 
@@ -64,10 +64,16 @@ namespace Algorithms
             public Node Put(Node? currentRoot, Node nodeToAdd)
             {
                 if (currentRoot == null) currentRoot = nodeToAdd;
+                currentRoot.size += 1;
                 int cmp = nodeToAdd.key.CompareTo(currentRoot.key);
                 if (cmp > 0) currentRoot.RightChild = Put(currentRoot.RightChild, nodeToAdd);
                 else if (cmp < 0) currentRoot.LeftChild = Put(currentRoot.LeftChild, nodeToAdd);
-                else currentRoot.value = nodeToAdd.value;
+                else
+                {
+                    currentRoot.value = nodeToAdd.value;
+                    currentRoot.size--;
+                }
+
                 return currentRoot;
             }
 
@@ -76,22 +82,52 @@ namespace Algorithms
                 return DeleteMin(root);
             }
 
-            public Node? DeleteMin(Node CurrentRoot)
+            private Node DeleteMin(Node x)
             {
-                while (true)
-                {
-                    if (CurrentRoot != null)
-                    {
-                        CurrentRoot.LeftChild = DeleteMin(CurrentRoot.LeftChild);
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
+                if (x.LeftChild == null) return x.RightChild;
+                x.LeftChild = DeleteMin(x.LeftChild);
+                x.size =
+                    (x.LeftChild == null ? 0 : Size(x.LeftChild))
+                    + (x.RightChild == null ? 0 : Size(x.RightChild))
+                    + 1;
+                return x;
             }
 
-        public class Node
+
+            public Node Delete(string key)
+            {
+                return Delete(root, key);
+            }
+
+            public Node Delete(Node x, string key)
+            {
+                int cmp = key.CompareTo(x.key);
+                if (cmp > 0) return Delete(x.RightChild, key);
+                if (cmp < 0) return Delete(x.LeftChild, key);
+
+                if (x.LeftChild == null)
+                {
+                    return x.RightChild;
+                }
+                if (x.RightChild == null)
+                {
+                    return x.LeftChild;
+                }
+
+                Node leftSubtree = x.LeftChild;
+                Node newX =  DeleteMin(x.RightChild);
+                newX.LeftChild = leftSubtree;
+                return newX;
+
+            }
+
+
+            public static int Size(Node node)
+            {
+                return node.size;
+            }
+
+            public class Node
             {
                 public string key;
                 public string value;
@@ -100,8 +136,10 @@ namespace Algorithms
                 {
                     this.key = key;
                     this.value = value;
+                    size = 1;
                 }
 
+                public int size;
                 public Node? LeftChild, RightChild;
             }
         }
