@@ -17,13 +17,8 @@ namespace Algorithms
             bst.Put("cc", "cccc");
             bst.Put("gg", "gggg");
 
-            foreach (var node in bst.InorderTraversal())
-            {
-                Console.WriteLine($"{node.key} {node.value} {node.size}");
-            }         
-            
-            Console.WriteLine();
-            Console.WriteLine();
+            Console.WriteLine(bst.rank("bb"));
+            Console.WriteLine(bst.rank("gg"));
             Console.WriteLine();
             foreach (var node in bst.BreadthFirstTraversal())
             {
@@ -50,37 +45,59 @@ namespace Algorithms
             }
 
 
-            public string min()
+            public string Min()
             {
                 // if (isEmpty()) throw new NoSuchElementException("calls min() with empty symbol table");
-                return min(root).key;
+                return Min(root).key;
             }
 
-            private Node min(Node x)
+            private Node Min(Node x)
             {
                 if (x.LeftChild == null) return x;
-                return min(x.LeftChild);
+                return Min(x.LeftChild);
             }
 
-            public string max()
+            public string Max()
             {
                 // if (isEmpty()) throw new NoSuchElementException("calls max() with empty symbol table");
-                return max(root).key;
+                return Max(root).key;
             }
 
-            private Node max(Node x)
+            private Node Max(Node x)
             {
                 if (x.RightChild == null) return x;
-                return max(x.RightChild);
+                return Max(x.RightChild);
+            }
+
+
+            public int? rank(string key)
+            {
+                return rank(root, key);
+            }
+
+
+            public int? rank(Node x, string key)
+            {
+                if (x == null) return null;
+
+                int cmp = key.CompareTo(x.key);
+                if (cmp < 0) return rank(x.LeftChild, key);
+                if (cmp > 0) return rank(x.RightChild, key);
+                return Size(x.LeftChild);
+            }
+
+            public bool isEmpty()
+            {
+                return Size(root) == 0;
             }
 
             public string? Get(string key)
             {
-                if (key == null) throw new ArgumentNullException(nameof(key), "");
+                if (key == null) throw new ArgumentNullException(nameof(key), "can't have null as a key");
                 return Get(root, key);
             }
 
-            public string? Get(Node? currentRoot, string key)
+            private string? Get(Node? currentRoot, string key)
             {
                 if (currentRoot == null) return null;
 
@@ -101,20 +118,22 @@ namespace Algorithms
             }
 
 
-            public Node Put(Node? currentRoot, Node nodeToAdd)
+            public Node Put(Node? x, Node nodeToAdd)
             {
-                if (currentRoot == null) currentRoot = nodeToAdd;
-                currentRoot.size += 1;
-                int cmp = nodeToAdd.key.CompareTo(currentRoot.key);
-                if (cmp > 0) currentRoot.RightChild = Put(currentRoot.RightChild, nodeToAdd);
-                else if (cmp < 0) currentRoot.LeftChild = Put(currentRoot.LeftChild, nodeToAdd);
+                if (x == null) x = nodeToAdd;
+                int cmp = nodeToAdd.key.CompareTo(x.key);
+                if (cmp > 0) x.RightChild = Put(x.RightChild, nodeToAdd);
+                else if (cmp < 0) x.LeftChild = Put(x.LeftChild, nodeToAdd);
                 else
                 {
-                    currentRoot.value = nodeToAdd.value;
-                    currentRoot.size--;
+                    x.value = nodeToAdd.value;
                 }
 
-                return currentRoot;
+                x.size = Size(x.LeftChild) + Size(x.RightChild) + 1;
+                x.height = Math.Max(Height(x.LeftChild) , Height(x.RightChild))+1;
+
+
+                return x;
             }
 
             public void DeleteMin()
@@ -126,10 +145,9 @@ namespace Algorithms
             {
                 if (x.LeftChild == null) return x.RightChild;
                 x.LeftChild = DeleteMin(x.LeftChild);
-                x.size =
-                    (x.LeftChild == null ? 0 : Size(x.LeftChild))
-                    + (x.RightChild == null ? 0 : Size(x.RightChild))
-                    + 1;
+                x.size = Size(x.LeftChild) + Size(x.RightChild) + 1;
+                x.height = Math.Max(Height(x.LeftChild) , Height(x.RightChild))+1;
+
                 return x;
             }
 
@@ -150,23 +168,59 @@ namespace Algorithms
                     if (x.RightChild == null) return x.LeftChild;
 
                     Node t = x;
-                    x = min(t.RightChild);
+                    x = Min(t.RightChild);
                     t.RightChild = DeleteMin(t.RightChild);
                     x.LeftChild = t.LeftChild;
                 }
 
                 // size
-                x.size =
-                    (x.LeftChild == null ? 0 : Size(x.LeftChild))
-                    + (x.RightChild == null ? 0 : Size(x.RightChild))
-                    + 1;
+                x.size = Size(x.LeftChild) + Size(x.RightChild) + 1;
+                x.height = Math.Max(Height(x.LeftChild) , Height(x.RightChild))+1;
                 return x;
             }
 
 
-            public static int Size(Node node)
+            private int Height(Node node)
             {
+                if (node == null) return 0;
+                return node.height;
+            }
+
+            private int Size(Node node)
+            {
+                if (node == null) return 0;
                 return node.size;
+            }
+
+            public int Size()
+            {
+                return Size(root);
+            }
+
+            public string Floor(string key)
+            {
+                Node x = Floor(root, key);
+                if (x == null) return null;
+                return x.key;
+            }
+
+            private Node Floor(Node x, string key)
+            {
+                if (x == null)
+                {
+                    return null;
+                }
+
+
+                int cmp = key.CompareTo(x.key);
+                if (cmp < 1) return Floor(x.LeftChild, key);
+                if (cmp == 0) return x;
+
+
+                Node t = Floor(x.RightChild, key);
+                if (t != null) return t;
+
+                return x;
             }
 
 
@@ -193,7 +247,7 @@ namespace Algorithms
                 BreadthFirstTraversal(root, queue);
                 return queue;
             }
-            
+
             private void BreadthFirstTraversal(Node x, Queue<Node> queue)
             {
                 if (x == null)
@@ -216,6 +270,7 @@ namespace Algorithms
                 }
 
                 public int size;
+                public int height;
                 public Node? LeftChild, RightChild;
             }
         }
