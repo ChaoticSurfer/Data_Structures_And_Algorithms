@@ -26,8 +26,6 @@ namespace Algorithms
 
     public static class Quick
     {
-        private static int CUT_OFF = 10;
-
         public static T SelectNth<T>(T[] array, int n) where T : IComparable
         {
             KnuthShuffle(array);
