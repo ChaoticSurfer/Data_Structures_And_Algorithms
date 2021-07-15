@@ -59,7 +59,7 @@ namespace Algorithms
 
             public string Max()
             {
-                // if (isEmpty()) throw new NoSuchElementException("calls max() with empty symbol table");
+                if (isEmpty()) throw new NoSuchElementException("calls max() with empty symbol table");
                 return Max(root).key;
             }
 
