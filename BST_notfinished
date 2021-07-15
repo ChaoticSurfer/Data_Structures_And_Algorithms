@@ -47,7 +47,7 @@ namespace Algorithms
 
             public string Min()
             {
-                // if (isEmpty()) throw new NoSuchElementException("calls min() with empty symbol table");
+                if (isEmpty()) throw new NoSuchElementException("calls min() with empty symbol table");
                 return Min(root).key;
             }
 
