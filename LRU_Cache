@@ -1,0 +1,64 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace LRUDataStrcture
+{
+    public class LRU<Key, Value> :IEnumerable<KeyValuePair<Key, Value>>
+    {
+        public LRU(int capacity)
+        {
+            Capacity = capacity;
+            Cache = new Dictionary<Key, Value>();
+            _linkedList = new LinkedList<Key>();
+        }
+
+        public void Put(Key key, Value value)
+        {
+            Cache[key] = value;
+
+
+            var containedNode = _linkedList.Find(key);
+            if (containedNode != null)
+            {
+                _linkedList.Remove(containedNode);
+            } // if already contained remove it
+
+            if (_linkedList.Count == Capacity)
+            {
+                _linkedList.RemoveFirst(); // if  full remove first
+                Cache.Remove(key);
+            }
+
+            _linkedList.AddLast(key); // and add at the end
+        }
+
+        public bool Contains(Key key) => Cache.ContainsKey(key);
+
+        public Value Get(Key key)
+        {
+            Value value;
+
+            var contains = Cache.TryGetValue(key, out value);
+            if (contains == false) throw new Exception();
+
+            return value;
+        }
+
+
+        private Dictionary<Key, Value> Cache;
+        public int Capacity;
+        private LinkedList<Key> _linkedList;
+
+
+        public IEnumerator<KeyValuePair<Key, Value>> GetEnumerator()
+        {
+            return Cache.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return Cache.GetEnumerator();
+        }
+    }
+}
