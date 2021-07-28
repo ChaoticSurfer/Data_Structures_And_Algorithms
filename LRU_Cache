@@ -2,7 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-// put -> O(n) because we 
+// time complexity
+// get -> O(1)
+// put -> O(1) if not a duplicate
+// if duplicate key O(n) ,because we have to find it to remove 
 
 
 namespace LRUDataStrcture
