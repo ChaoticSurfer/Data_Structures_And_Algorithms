@@ -2,6 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+// put -> O(n) because we 
+
+
 namespace LRUDataStrcture
 {
     public class LRU<Key, Value> :IEnumerable<KeyValuePair<Key, Value>>
@@ -18,11 +21,12 @@ namespace LRUDataStrcture
             Cache[key] = value;
 
 
-            var containedNode = _linkedList.Find(key);
-            if (containedNode != null)
+            if (Cache.ContainsKey(key))
             {
+                var containedNode = _linkedList.Find(key);
                 _linkedList.Remove(containedNode);
             } // if already contained remove it
+
 
             if (_linkedList.Count == Capacity)
             {
