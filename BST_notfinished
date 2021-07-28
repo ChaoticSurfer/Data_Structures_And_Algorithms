@@ -11,14 +11,15 @@ namespace Algorithms
     {
         static void Main()
         {
-            var bst = new BST("bb", "bbbb");
-            bst.Put("dd", "dddd");
-            bst.Put("aa", "aaaa");
-            bst.Put("cc", "cccc");
-            bst.Put("gg", "gggg");
+            var bst = new BST(3, "b3333bbb");
+            bst.Put(2, "d222ddd");
+            bst.Put(1, "a111aaa");
+            bst.Put(0, "00cccc");
+            bst.Put(4444, "444gggg");
+            bst.Put(3, "333333why");
+            bst.Put(5, "5gggg");
 
-            Console.WriteLine(bst.rank("bb"));
-            Console.WriteLine(bst.rank("gg"));
+
             Console.WriteLine();
             foreach (var node in bst.BreadthFirstTraversal())
             {
@@ -34,20 +35,15 @@ namespace Algorithms
             {
             }
 
-            public BST(Node root)
-            {
-                this.root = root;
-            }
-
-            public BST(string key, string value)
+            public BST(int key, string value)
             {
                 root = new Node(key, value);
             }
 
 
-            public string Min()
+            public int Min()
             {
-                if (isEmpty()) throw new NoSuchElementException("calls min() with empty symbol table");
+                if (isEmpty()) throw new Exception("calls min() with empty symbol table");
                 return Min(root).key;
             }
 
@@ -57,9 +53,9 @@ namespace Algorithms
                 return Min(x.LeftChild);
             }
 
-            public string Max()
+            public int Max()
             {
-                if (isEmpty()) throw new NoSuchElementException("calls max() with empty symbol table");
+                if (isEmpty()) throw new Exception("calls max() with empty symbol table");
                 return Max(root).key;
             }
 
@@ -70,13 +66,13 @@ namespace Algorithms
             }
 
 
-            public int? rank(string key)
+            public int? rank(int key)
             {
                 return rank(root, key);
             }
 
 
-            public int? rank(Node x, string key)
+            public int? rank(Node x, int key)
             {
                 if (x == null) return null;
 
@@ -91,13 +87,13 @@ namespace Algorithms
                 return Size(root) == 0;
             }
 
-            public string? Get(string key)
+            public string? Get(int key)
             {
                 if (key == null) throw new ArgumentNullException(nameof(key), "can't have null as a key");
                 return Get(root, key);
             }
 
-            private string? Get(Node? currentRoot, string key)
+            private string? Get(Node? currentRoot, int key)
             {
                 if (currentRoot == null) return null;
 
@@ -108,7 +104,7 @@ namespace Algorithms
                 return null;
             }
 
-            public void Put(string key, string value)
+            public void Put(int key, string value)
             {
                 if (key == null) throw new ArgumentNullException(nameof(key), "");
                 if (value == null)
@@ -118,7 +114,7 @@ namespace Algorithms
             }
 
 
-            public Node Put(Node? x, Node nodeToAdd)
+            public Node Put(Node x, Node nodeToAdd)
             {
                 if (x == null) x = nodeToAdd;
                 int cmp = nodeToAdd.key.CompareTo(x.key);
@@ -152,12 +148,12 @@ namespace Algorithms
             }
 
 
-            public Node Delete(string key)
+            public Node Delete(int key)
             {
                 return Delete(root, key);
             }
 
-            public Node Delete(Node x, string key)
+            public Node Delete(Node x, int key)
             {
                 int cmp = key.CompareTo(x.key);
                 if (cmp > 0) x.RightChild = Delete(x.RightChild, key);
@@ -197,14 +193,14 @@ namespace Algorithms
                 return Size(root);
             }
 
-            public string Floor(string key)
+            public int? Floor(int key)
             {
                 Node x = Floor(root, key);
                 if (x == null) return null;
                 return x.key;
             }
 
-            private Node Floor(Node x, string key)
+            private Node Floor(Node x, int key)
             {
                 if (x == null)
                 {
@@ -259,10 +255,10 @@ namespace Algorithms
 
             public class Node
             {
-                public string key;
+                public int key;
                 public string value;
 
-                public Node(string key, string value)
+                public Node(int key, string value)
                 {
                     this.key = key;
                     this.value = value;
