@@ -1,71 +1,273 @@
+#nullable enable
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
-// time complexity
-// get -> O(1)
-// put -> O(1) if not a duplicate
-// if duplicate key O(n) ,because we have to find it to remove 
 
-
-namespace LRUDataStrcture
+namespace Algorithms
 {
-    public class LRU<Key, Value> :IEnumerable<KeyValuePair<Key, Value>>
+    public class Program
     {
-        public LRU(int capacity)
+        static void Main()
         {
-            Capacity = capacity;
-            Cache = new Dictionary<Key, Value>();
-            _linkedList = new LinkedList<Key>();
+            var bst = new BST("bb", "bbbb");
+            bst.Put("dd", "dddd");
+            bst.Put("aa", "aaaa");
+            bst.Put("cc", "cccc");
+            bst.Put("gg", "gggg");
+
+            Console.WriteLine(bst.rank("bb"));
+            Console.WriteLine(bst.rank("gg"));
+            Console.WriteLine();
+            foreach (var node in bst.BreadthFirstTraversal())
+            {
+                Console.WriteLine($"{node.key} {node.value} {node.size}");
+            }
         }
 
-        public void Put(Key key, Value value)
+        public class BST
         {
-            Cache[key] = value;
+            Node root;
 
-
-            if (Cache.ContainsKey(key))
+            public BST()
             {
-                var containedNode = _linkedList.Find(key);
-                _linkedList.Remove(containedNode);
-            } // if already contained remove it
-
-
-            if (_linkedList.Count == Capacity)
-            {
-                _linkedList.RemoveFirst(); // if  full remove first
-                Cache.Remove(key);
             }
 
-            _linkedList.AddLast(key); // and add at the end
-        }
-
-        public bool Contains(Key key) => Cache.ContainsKey(key);
-
-        public Value Get(Key key)
-        {
-            Value value;
-
-            var contains = Cache.TryGetValue(key, out value);
-            if (contains == false) throw new Exception();
-
-            return value;
-        }
+            public BST(string key, string value)
+            {
+                root = new Node(key, value);
+            }
 
 
-        private Dictionary<Key, Value> Cache;
-        public int Capacity;
-        private LinkedList<Key> _linkedList;
+            public string Min()
+            {
+                if (isEmpty()) throw new Exception("calls min() with empty symbol table");
+                return Min(root).key;
+            }
+
+            private Node Min(Node x)
+            {
+                if (x.LeftChild == null) return x;
+                return Min(x.LeftChild);
+            }
+
+            public string Max()
+            {
+                if (isEmpty()) throw new Exception("calls max() with empty symbol table");
+                return Max(root).key;
+            }
+
+            private Node Max(Node x)
+            {
+                if (x.RightChild == null) return x;
+                return Max(x.RightChild);
+            }
 
 
-        public IEnumerator<KeyValuePair<Key, Value>> GetEnumerator()
-        {
-            return Cache.GetEnumerator();
-        }
+            public int? rank(string key)
+            {
+                return rank(root, key);
+            }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return Cache.GetEnumerator();
+
+            public int? rank(Node x, string key)
+            {
+                if (x == null) return null;
+
+                int cmp = key.CompareTo(x.key);
+                if (cmp < 0) return rank(x.LeftChild, key);
+                if (cmp > 0) return rank(x.RightChild, key);
+                return Size(x.LeftChild);
+            }
+
+            public bool isEmpty()
+            {
+                return Size(root) == 0;
+            }
+
+            public string? Get(string key)
+            {
+                if (key == null) throw new ArgumentNullException(nameof(key), "can't have null as a key");
+                return Get(root, key);
+            }
+
+            private string? Get(Node? currentRoot, string key)
+            {
+                if (currentRoot == null) return null;
+
+                int cmp = key.CompareTo(currentRoot.key);
+                if (cmp > 0) return Get(currentRoot.RightChild, key);
+                if (cmp < 0) return Get(currentRoot.LeftChild, key);
+                if (cmp == 0) return currentRoot.value;
+                return null;
+            }
+
+            public void Put(string key, string value)
+            {
+                if (key == null) throw new ArgumentNullException(nameof(key), "");
+                if (value == null)
+                    Delete(key);
+                else
+                    root = Put(root, new Node(key, value));
+            }
+
+
+            public Node Put(Node? x, Node nodeToAdd)
+            {
+                if (x == null) x = nodeToAdd;
+                int cmp = nodeToAdd.key.CompareTo(x.key);
+                if (cmp > 0) x.RightChild = Put(x.RightChild, nodeToAdd);
+                else if (cmp < 0) x.LeftChild = Put(x.LeftChild, nodeToAdd);
+                else
+                {
+                    x.value = nodeToAdd.value;
+                }
+
+                x.size = Size(x.LeftChild) + Size(x.RightChild) + 1;
+                x.height = Math.Max(Height(x.LeftChild) , Height(x.RightChild))+1;
+
+
+                return x;
+            }
+
+            public void DeleteMin()
+            {
+                root = DeleteMin(root);
+            }
+
+            private Node DeleteMin(Node x)
+            {
+                if (x.LeftChild == null) return x.RightChild;
+                x.LeftChild = DeleteMin(x.LeftChild);
+                x.size = Size(x.LeftChild) + Size(x.RightChild) + 1;
+                x.height = Math.Max(Height(x.LeftChild) , Height(x.RightChild))+1;
+
+                return x;
+            }
+
+
+            public Node Delete(string key)
+            {
+                return Delete(root, key);
+            }
+
+            public Node Delete(Node x, string key)
+            {
+                int cmp = key.CompareTo(x.key);
+                if (cmp > 0) x.RightChild = Delete(x.RightChild, key);
+                if (cmp < 0) x.LeftChild = Delete(x.LeftChild, key);
+                else
+                {
+                    if (x.LeftChild == null) return x.RightChild;
+                    if (x.RightChild == null) return x.LeftChild;
+
+                    Node t = x;
+                    x = Min(t.RightChild);
+                    t.RightChild = DeleteMin(t.RightChild);
+                    x.LeftChild = t.LeftChild;
+                }
+
+                // size
+                x.size = Size(x.LeftChild) + Size(x.RightChild) + 1;
+                x.height = Math.Max(Height(x.LeftChild) , Height(x.RightChild))+1;
+                return x;
+            }
+
+
+            private int Height(Node node)
+            {
+                if (node == null) return 0;
+                return node.height;
+            }
+
+            private int Size(Node node)
+            {
+                if (node == null) return 0;
+                return node.size;
+            }
+
+            public int Size()
+            {
+                return Size(root);
+            }
+
+            public string Floor(string key)
+            {
+                Node x = Floor(root, key);
+                if (x == null) return null;
+                return x.key;
+            }
+
+            private Node Floor(Node x, string key)
+            {
+                if (x == null)
+                {
+                    return null;
+                }
+
+
+                int cmp = key.CompareTo(x.key);
+                if (cmp < 1) return Floor(x.LeftChild, key);
+                if (cmp == 0) return x;
+
+
+                Node t = Floor(x.RightChild, key);
+                if (t != null) return t;
+
+                return x;
+            }
+
+
+            public Queue<Node> InorderTraversal()
+            {
+                var queue = new Queue<Node>();
+                InorderTraversal(root, queue);
+                return queue;
+            }
+
+            private void InorderTraversal(Node x, Queue<Node> queue)
+            {
+                if (x == null)
+                    return;
+
+                InorderTraversal(x.LeftChild, queue);
+                queue.Enqueue(x);
+                InorderTraversal(x.RightChild, queue);
+            }
+
+            public Queue<Node> BreadthFirstTraversal()
+            {
+                var queue = new Queue<Node>();
+                BreadthFirstTraversal(root, queue);
+                return queue;
+            }
+
+            private void BreadthFirstTraversal(Node x, Queue<Node> queue)
+            {
+                if (x == null)
+                    return;
+                queue.Enqueue(x);
+                InorderTraversal(x.LeftChild, queue);
+                InorderTraversal(x.RightChild, queue);
+            }
+
+            public class Node
+            {
+                public string key;
+                public string value;
+
+                public Node(string key, string value)
+                {
+                    this.key = key;
+                    this.value = value;
+                    size = 1;
+                }
+
+                public int size;
+                public int height;
+                public Node? LeftChild, RightChild;
+            }
         }
     }
 }
