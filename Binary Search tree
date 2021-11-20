@@ -1,3 +1,266 @@
+#nullable enable
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
+
+namespace Algorithms
+{
+    public class Program
+    {
+        static void Main()
+        {
+            var bst = new BST(3, "b3333bbb");
+            bst.Put(2, "d222ddd");
+            bst.Put(1, "a111aaa");
+            bst.Put(0, "00cccc");
+            bst.Put(4444, "444gggg");
+            bst.Put(3, "333333why");
+            bst.Put(5, "5gggg");
+
+            var t = new BSTTests();
+            Console.WriteLine(t.CheckIfLegal(bst));
+            Console.WriteLine(t.CheckIfPerfectlyBalanced(bst));
+        }
+
+        public class BST
+        {
+            internal Node root;
+
+            public BST()
+            {
+            }
+
+            public BST(int key, string value)
+            {
+                root = new Node(key, value);
+            }
+
+
+            public class Node
+            {
+                public int key;
+                public string value;
+
+                public Node(int key, string value)
+                {
+                    this.key = key;
+                    this.value = value;
+                    count = 1;
+                }
+
+                public int count;
+                public int height;
+                public Node? LeftChild, RightChild;
+            }
+
+
+            public int Size()
+            {
+                return Size(root);
+            }
+
+            private int Size(Node node)
+            {
+                if (node == null) return 0;
+                return node.count;
+            }
+
+
+            public void Put(int key, string value)
+            {
+                if (key == null) throw new ArgumentNullException(nameof(key), "trying tu put null argument");
+                root = Put(root, new Node(key, value));
+            }
+
+            private Node Put(Node x, Node nodeToAdd)
+            {
+                if (x == null) x = nodeToAdd;
+                int cmp = nodeToAdd.key.CompareTo(x.key);
+                if (cmp > 0) x.RightChild = Put(x.RightChild, nodeToAdd);
+                else if (cmp < 0) x.LeftChild = Put(x.LeftChild, nodeToAdd);
+                else x.value = nodeToAdd.value;
+
+                x.count = Size(x.LeftChild) + Size(x.RightChild) + 1;
+                x.height = Math.Max(Height(x.LeftChild), Height(x.RightChild)) + 1;
+
+                return x;
+            }
+
+
+            public int Min()
+            {
+                if (isEmpty()) throw new Exception("calls min() with empty symbol table");
+                return Min(root).key;
+            }
+
+            private Node Min(Node x)
+            {
+                if (x.LeftChild == null) return x;
+                return Min(x.LeftChild);
+            }
+
+            public int Max()
+            {
+                if (isEmpty()) throw new Exception("calls max() with empty symbol table");
+                return Max(root).key;
+            }
+
+            private Node Max(Node x)
+            {
+                if (x.RightChild == null) return x;
+                return Max(x.RightChild);
+            }
+
+            public bool isEmpty()
+            {
+                return Size(root) == 0;
+            }
+
+
+            public int? rank(int key)
+            {
+                return rank(root, key);
+            }
+
+
+            public int? rank(Node x, int key)
+            {
+                int cmp = key.CompareTo(x);
+                if (cmp == 0) return Size(x);
+                if (cmp < 0) return rank(x.LeftChild, key);
+                return Size(x.LeftChild) + rank(x.RightChild, key) + 1;
+            }
+
+
+            public string? Get(int key)
+            {
+                if (key == null) throw new ArgumentNullException(nameof(key), "can't have null as a key");
+                return Get(root, key);
+            }
+
+            private string? Get(Node? currentRoot, int key)
+            {
+                if (currentRoot == null) return null;
+
+                int cmp = key.CompareTo(currentRoot.key);
+                if (cmp > 0) return Get(currentRoot.RightChild, key);
+                if (cmp < 0) return Get(currentRoot.LeftChild, key);
+                if (cmp == 0) return currentRoot.value;
+                return null;
+            }
+
+
+            public void DeleteMin()
+            {
+                root = DeleteMin(root);
+            }
+
+            private Node DeleteMin(Node x)
+            {
+                if (x.LeftChild == null) return x.RightChild;
+                x.LeftChild = DeleteMin(x.LeftChild);
+                x.count = Size(x.LeftChild) + Size(x.RightChild) + 1;
+                x.height = Math.Max(Height(x.LeftChild), Height(x.RightChild)) + 1;
+
+                return x;
+            }
+
+// Hibbard deletion
+            public Node Delete(int key)
+            {
+                return Delete(root, key);
+            }
+
+            public Node Delete(Node x, int key)
+            {
+                int cmp = key.CompareTo(x.key);
+                if (cmp > 0) x.RightChild = Delete(x.RightChild, key);
+                if (cmp < 0) x.LeftChild = Delete(x.LeftChild, key);
+                else
+                {
+                    if (x.LeftChild == null) return x.RightChild;
+                    if (x.RightChild == null) return x.LeftChild;
+
+                    Node t = x;
+                    x = Min(t.RightChild);
+                    t.RightChild = DeleteMin(t.RightChild);
+                    x.LeftChild = t.LeftChild;
+                }
+
+                // size
+                x.count = Size(x.LeftChild) + Size(x.RightChild) + 1;
+                x.height = Math.Max(Height(x.LeftChild), Height(x.RightChild)) + 1;
+                return x;
+            }
+
+
+            private int Height(Node node)
+            {
+                if (node == null) return 0;
+                return node.height;
+            }
+
+            public int Height()
+            {
+                return Height(root);
+            }
+
+            public int? Floor(int key)
+            {
+                var x = Floor(root, key);
+                if (x == null) return null;
+                return x?.key;
+            }
+
+            private Node? Floor(Node x, int key)
+            {
+                if (x == null) return null;
+
+                int cmp = key.CompareTo(x.key);
+                if (cmp == 0) return x;
+                if (cmp == -1) return Floor(x.LeftChild, key);
+                var temp = Floor(x.RightChild, key);
+                return temp ?? x;
+            }
+
+            public Queue<Node> InorderTraversal()
+            {
+                var queue = new Queue<Node>();
+                InorderTraversal(root, queue);
+                return queue;
+            }
+
+            private void InorderTraversal(Node x, Queue<Node> queue)
+            {
+                if (x == null)
+                    return;
+
+                InorderTraversal(x.LeftChild, queue);
+                queue.Enqueue(x);
+                InorderTraversal(x.RightChild, queue);
+            }
+
+            public Queue<Node> BreadthFirstTraversal()
+            {
+                var queue = new Queue<Node>();
+                BreadthFirstTraversal(root, queue);
+                return queue;
+            }
+
+            private void BreadthFirstTraversal(Node x, Queue<Node> queue)
+            {
+                if (x == null)
+                    return;
+                queue.Enqueue(x);
+                InorderTraversal(x.LeftChild, queue);
+                InorderTraversal(x.RightChild, queue);
+            }
+        }
+
+        class BSTTests
+        {
             public bool CheckIfPerfectlyBalanced(BST bst)
             {
                 var size = bst.Size();
@@ -6,3 +269,30 @@
                 var sizeShouldBe = (1 << height) - 1; // construct all 1111 s according to height.
                 return sizeShouldBe == size;
             }
+
+
+            public bool CheckIfLegal(BST bst)
+            {
+                return VerifyChildrenRecursive(bst.root);
+            }
+
+            private bool VerifyChildrenRecursive(BST.Node? x)
+            {
+                if (x == null) return true;
+
+                bool validChildren = VerifyChildren(x);
+                if (!validChildren) return false;
+
+                return VerifyChildrenRecursive(x.LeftChild) && VerifyChildrenRecursive(x.RightChild);
+            }
+
+            private bool VerifyChildren(BST.Node x)
+            {
+                bool result = true;
+                if (x.LeftChild != null) result &= x.LeftChild.key < x.key;
+                if (x.RightChild != null) result &= x.RightChild.key > x.key;
+                return result;
+            }
+        }
+    }
+}
