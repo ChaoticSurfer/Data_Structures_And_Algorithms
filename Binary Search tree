@@ -20,7 +20,8 @@ namespace Algorithms
             bst.Put(5, "5gggg");
 
             var t = new BSTTests();
-            Console.WriteLine(t.CheckIfLegalBST(bst));
+            Console.WriteLine(t.CheckIfLegal(bst));
+            Console.WriteLine(t.CheckIfPerfectlyBalanced(bst));
         }
 
         public class BST
@@ -65,6 +66,7 @@ namespace Algorithms
                 if (node == null) return 0;
                 return node.count;
             }
+
 
             public void Put(int key, string value)
             {
@@ -200,6 +202,10 @@ namespace Algorithms
                 return node.height;
             }
 
+            public int Height()
+            {
+                return Height(root);
+            }
 
             public int? Floor(int key)
             {
@@ -255,14 +261,28 @@ namespace Algorithms
 
         class BSTTests
         {
-            public bool CheckIfLegalBST(BST bst)
+            public bool CheckIfPerfectlyBalanced(BST bst)
+            {
+                var size = bst.Size();
+
+                if (size == 1) return true;
+
+                var allOnes = ((size - 1 & size) << 1) - 1; 
+                // if 1010 set all bits to 1 after first 1 so we get 1111 and is was 1010 actually 1111?
+                
+                return allOnes == size;
+            }
+
+
+            public bool CheckIfLegal(BST bst)
             {
                 return VerifyChildrenRecursive(bst.root);
             }
+
             private bool VerifyChildrenRecursive(BST.Node? x)
             {
                 if (x == null) return true;
-                
+
                 bool validChildren = VerifyChildren(x);
                 if (!validChildren) return false;
 
