@@ -18,11 +18,14 @@ namespace Algorithms
             bst.Put(4444, "444gggg");
             bst.Put(3, "333333why");
             bst.Put(5, "5gggg");
+
+            var t = new BSTTests();
+            Console.WriteLine(t.CheckIfLegalBST(bst));
         }
 
         public class BST
         {
-            Node root;
+            internal Node root;
 
             public BST()
             {
@@ -162,7 +165,7 @@ namespace Algorithms
                 return x;
             }
 
-
+// Hibbard deletion
             public Node Delete(int key)
             {
                 return Delete(root, key);
@@ -247,6 +250,31 @@ namespace Algorithms
                 queue.Enqueue(x);
                 InorderTraversal(x.LeftChild, queue);
                 InorderTraversal(x.RightChild, queue);
+            }
+        }
+
+        class BSTTests
+        {
+            public bool CheckIfLegalBST(BST bst)
+            {
+                return VerifyChildrenRecursive(bst.root);
+            }
+            private bool VerifyChildrenRecursive(BST.Node? x)
+            {
+                if (x == null) return true;
+                
+                bool validChildren = VerifyChildren(x);
+                if (!validChildren) return false;
+
+                return VerifyChildrenRecursive(x.LeftChild) && VerifyChildrenRecursive(x.RightChild);
+            }
+
+            private bool VerifyChildren(BST.Node x)
+            {
+                bool result = true;
+                if (x.LeftChild != null) result &= x.LeftChild.key < x.key;
+                if (x.RightChild != null) result &= x.RightChild.key > x.key;
+                return result;
             }
         }
     }
