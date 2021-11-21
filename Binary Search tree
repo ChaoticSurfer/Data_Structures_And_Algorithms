@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 
 namespace Algorithms
@@ -22,6 +23,14 @@ namespace Algorithms
             var t = new BSTTests();
             Console.WriteLine(t.CheckIfLegal(bst));
             Console.WriteLine(t.CheckIfPerfectlyBalanced(bst));
+            
+            // efficiently build up balanced binary tree from data provided
+            var range = Enumerable.Range(1, 100).Reverse();
+            var pairs = range.Select(num => new ValueTuple<int, string>(num, num.ToString()));
+            var bstConstructed = BST.ConstructBalancedBST(pairs.ToArray());
+
+            foreach (var node in bstConstructed.InorderTraversal())
+                Console.WriteLine(node.key);
         }
 
         public class BST
@@ -61,7 +70,7 @@ namespace Algorithms
                 return Size(root);
             }
 
-            private int Size(Node node)
+            internal static int Size(Node node)
             {
                 if (node == null) return 0;
                 return node.count;
@@ -74,7 +83,7 @@ namespace Algorithms
                 root = Put(root, new Node(key, value));
             }
 
-            private Node Put(Node x, Node nodeToAdd)
+            internal Node Put(Node x, Node nodeToAdd)
             {
                 if (x == null) x = nodeToAdd;
                 int cmp = nodeToAdd.key.CompareTo(x.key);
@@ -82,10 +91,15 @@ namespace Algorithms
                 else if (cmp < 0) x.LeftChild = Put(x.LeftChild, nodeToAdd);
                 else x.value = nodeToAdd.value;
 
-                x.count = Size(x.LeftChild) + Size(x.RightChild) + 1;
-                x.height = Math.Max(Height(x.LeftChild), Height(x.RightChild)) + 1;
+                BuildMetaData(x);
 
                 return x;
+            }
+
+            public static void BuildMetaData(Node node)
+            {
+                node.count = Size(node.LeftChild) + Size(node.RightChild) + 1;
+                node.height = Math.Max(Height(node.LeftChild), Height(node.RightChild)) + 1;
             }
 
 
@@ -95,7 +109,7 @@ namespace Algorithms
                 return Min(root).key;
             }
 
-            private Node Min(Node x)
+            internal Node Min(Node x)
             {
                 if (x.LeftChild == null) return x;
                 return Min(x.LeftChild);
@@ -107,7 +121,7 @@ namespace Algorithms
                 return Max(root).key;
             }
 
-            private Node Max(Node x)
+            internal Node Max(Node x)
             {
                 if (x.RightChild == null) return x;
                 return Max(x.RightChild);
@@ -140,7 +154,7 @@ namespace Algorithms
                 return Get(root, key);
             }
 
-            private string? Get(Node? currentRoot, int key)
+            internal string? Get(Node? currentRoot, int key)
             {
                 if (currentRoot == null) return null;
 
@@ -157,12 +171,11 @@ namespace Algorithms
                 root = DeleteMin(root);
             }
 
-            private Node DeleteMin(Node x)
+            internal Node DeleteMin(Node x)
             {
                 if (x.LeftChild == null) return x.RightChild;
                 x.LeftChild = DeleteMin(x.LeftChild);
-                x.count = Size(x.LeftChild) + Size(x.RightChild) + 1;
-                x.height = Math.Max(Height(x.LeftChild), Height(x.RightChild)) + 1;
+                BuildMetaData(x);
 
                 return x;
             }
@@ -189,14 +202,12 @@ namespace Algorithms
                     x.LeftChild = t.LeftChild;
                 }
 
-                // size
-                x.count = Size(x.LeftChild) + Size(x.RightChild) + 1;
-                x.height = Math.Max(Height(x.LeftChild), Height(x.RightChild)) + 1;
+                BuildMetaData(x);
                 return x;
             }
 
 
-            private int Height(Node node)
+            internal static int Height(Node node)
             {
                 if (node == null) return 0;
                 return node.height;
@@ -214,7 +225,7 @@ namespace Algorithms
                 return x?.key;
             }
 
-            private Node? Floor(Node x, int key)
+            internal Node? Floor(Node x, int key)
             {
                 if (x == null) return null;
 
@@ -232,7 +243,7 @@ namespace Algorithms
                 return queue;
             }
 
-            private void InorderTraversal(Node x, Queue<Node> queue)
+            internal void InorderTraversal(Node x, Queue<Node> queue)
             {
                 if (x == null)
                     return;
@@ -249,13 +260,59 @@ namespace Algorithms
                 return queue;
             }
 
-            private void BreadthFirstTraversal(Node x, Queue<Node> queue)
+            internal void BreadthFirstTraversal(Node x, Queue<Node> queue)
             {
                 if (x == null)
                     return;
                 queue.Enqueue(x);
                 InorderTraversal(x.LeftChild, queue);
                 InorderTraversal(x.RightChild, queue);
+            }
+
+            public static BST ConstructBalancedBST(ValueTuple<int, string>[] keyValuePairs)
+            {
+                int startIndex = 0;
+                int endIndex = keyValuePairs.Length - 1;
+                return ConstructBalancedBST(keyValuePairs, startIndex, endIndex);
+            }
+
+            public static BST ConstructBalancedBST(ValueTuple<int, string>[] keyValuePairs, int startIndex,
+                int endIndex)
+            {
+                Array.Sort(keyValuePairs, CompareKeyValuePairs);
+
+                var bst = new BST();
+                bst.root = constBSTRecursive(keyValuePairs, startIndex, endIndex);
+                return bst;
+            }
+
+            internal static Node constBSTRecursive(
+                ValueTuple<int, string>[] keyValuePairs,
+                int startIndex, int endIndex)
+            {
+                int mid = findMidIndex(startIndex, endIndex);
+                var root = MapTupleToNode(keyValuePairs[mid]);
+
+                if (startIndex >= endIndex) return root;
+
+                root.RightChild = constBSTRecursive(keyValuePairs, mid + 1, endIndex);
+                root.LeftChild = constBSTRecursive(keyValuePairs, startIndex, mid - 1);
+
+                BuildMetaData(root);
+
+                return root;
+            }
+
+
+            private static Node MapTupleToNode(ValueTuple<int, string> tupleKeyValuePair)
+                => new Node(tupleKeyValuePair.Item1, tupleKeyValuePair.Item2);
+
+            private static int findMidIndex(int startIndex, int endIndex)
+                => (startIndex + endIndex) / 2;
+
+            private static int CompareKeyValuePairs(ValueTuple<int, string> pair1, ValueTuple<int, string> pair2)
+            {
+                return pair1.Item1.CompareTo(pair2.Item1);
             }
         }
 
@@ -265,7 +322,7 @@ namespace Algorithms
             {
                 var size = bst.Size();
                 var height = bst.Height();
-                
+
                 var sizeShouldBe = (1 << height) - 1; // construct all 1111 s according to height.
                 return sizeShouldBe == size;
             }
