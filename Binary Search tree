@@ -23,7 +23,7 @@ namespace Algorithms
             var t = new BSTTests();
             Console.WriteLine(t.CheckIfLegal(bst));
             Console.WriteLine(t.CheckIfPerfectlyBalanced(bst));
-            
+
             // efficiently build up balanced binary tree from data provided
             var range = Enumerable.Range(1, 100).Reverse();
             var pairs = range.Select(num => new ValueTuple<int, string>(num, num.ToString()));
@@ -269,6 +269,13 @@ namespace Algorithms
                 InorderTraversal(x.RightChild, queue);
             }
 
+            public void Rebalance()
+            {
+                var sortedQueue = InorderTraversal();
+                var newRoot = ConstructBstRecursiveFromSorted(sortedQueue.ToArray());
+                this.root = newRoot;
+            }
+
             public static BST ConstructBalancedBST(ValueTuple<int, string>[] keyValuePairs)
             {
                 int startIndex = 0;
@@ -282,11 +289,11 @@ namespace Algorithms
                 Array.Sort(keyValuePairs, CompareKeyValuePairs);
 
                 var bst = new BST();
-                bst.root = constBSTRecursive(keyValuePairs, startIndex, endIndex);
+                bst.root = ConstructBstRecursiveFromSorted(keyValuePairs, startIndex, endIndex);
                 return bst;
             }
 
-            internal static Node constBSTRecursive(
+            internal static Node ConstructBstRecursiveFromSorted(
                 ValueTuple<int, string>[] keyValuePairs,
                 int startIndex, int endIndex)
             {
@@ -295,8 +302,32 @@ namespace Algorithms
 
                 if (startIndex >= endIndex) return root;
 
-                root.RightChild = constBSTRecursive(keyValuePairs, mid + 1, endIndex);
-                root.LeftChild = constBSTRecursive(keyValuePairs, startIndex, mid - 1);
+                root.RightChild = ConstructBstRecursiveFromSorted(keyValuePairs, mid + 1, endIndex);
+                root.LeftChild = ConstructBstRecursiveFromSorted(keyValuePairs, startIndex, mid - 1);
+
+                BuildMetaData(root);
+
+                return root;
+            }
+
+            internal static Node ConstructBstRecursiveFromSorted(
+                Node[] keyValuePairs)
+            {
+                var root = ConstructBstRecursiveFromSorted(keyValuePairs, 0, keyValuePairs.Length);
+                return root;
+            }
+
+            internal static Node ConstructBstRecursiveFromSorted(
+                Node[] keyValuePairs,
+                int startIndex, int endIndex)
+            {
+                int mid = findMidIndex(startIndex, endIndex);
+                var root = keyValuePairs[mid];
+
+                if (startIndex >= endIndex) return root;
+
+                root.RightChild = ConstructBstRecursiveFromSorted(keyValuePairs, mid + 1, endIndex);
+                root.LeftChild = ConstructBstRecursiveFromSorted(keyValuePairs, startIndex, mid - 1);
 
                 BuildMetaData(root);
 
